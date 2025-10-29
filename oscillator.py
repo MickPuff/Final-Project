@@ -4,7 +4,6 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.animation as animation
-#test
 
 # assigning constants
 
@@ -15,8 +14,8 @@ ell = 1
 
 theta0 = np.deg2rad(170) # angle
 theta_dot0 = 0 # angular velocity
-mu = 0
-F_0 = 0
+mu = 0.2
+F_0 = 2
 omega = 3.1305
 
 #defining the system of diffeq.
@@ -27,8 +26,8 @@ def pendulum_ODE(t, y):
 
 #solving ODE
 
-time_range = 20
-fps = 60
+time_range = 40
+fps = 30
 sol = solve_ivp(
     pendulum_ODE, [0, time_range], (theta0, theta_dot0),
     t_eval=np.linspace(0, time_range, fps*time_range),
@@ -61,7 +60,7 @@ if PLOT_GRAPH:
     plt.show()
 
 #animating angle and angular velocity vs time
-PLAY_ANI_GRAPH = True
+PLAY_ANI_GRAPH = False
 if PLAY_ANI_GRAPH:
     fig1, ax1 = plt.subplots(figsize=(8, 8))
 
@@ -139,7 +138,7 @@ if PLOT_DIAGRAM:
     plt.show()
 
 #animating phase diagram
-PLAY_ANI_DIAGRAM = True
+PLAY_ANI_DIAGRAM = False
 if PLAY_ANI_DIAGRAM:
     fig2, ax2 = plt.subplots(figsize=(8, 8))
 
@@ -193,7 +192,7 @@ if PLAY_ANI_DIAGRAM:
     plt.show()
 
 #animating the pendulum
-PLAY_ANI_PEND = True
+PLAY_ANI_PEND = False
 if PLAY_ANI_PEND:
     def pend_pos(theta):
         return (ell*np.sin(theta), -ell*np.cos(theta))
@@ -224,10 +223,10 @@ if PLAY_ANI_PEND:
 
     plt.show()
 
-ANIMATE_ALL = False
+ANIMATE_ALL = True
 if ANIMATE_ALL:
     
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(10, 10))
     gs = gridspec.GridSpec(2,2, width_ratios=[1,2], height_ratios=[1,1])
 
     #graph
@@ -266,18 +265,48 @@ if ANIMATE_ALL:
     ax2.grid()
 
     phase_curve_2, = ax2.plot(theta_deg[0], theta_dot_deg[0], 'b')  
-    phase_dot, = ax2.plot(theta_deg[0], theta_dot_deg[0], 'ro') 
+    phase_dot_2, = ax2.plot(theta_deg[0], theta_dot_deg[0], 'ro') 
 
     #pendulum
     def pend_pos(theta):
         return (ell*np.sin(theta), -ell*np.cos(theta))
 
-    fig3 = plt.figure(figsize=(8, 8))
-    ax3 = fig3.add_subplot(aspect='equal')
+    ax3 = fig.add_subplot(gs[:,1])
+
     ax3.set_xlim(-1.25, 1.25)
     ax3.set_ylim(-1.25, 1.25)
     ax3.grid()
 
     x0, y0 = pend_pos(theta0)
-    line, = ax3.plot([0, x0], [0,y0], lw=2, c='k')
-    circle = ax3.add_patch(plt.Circle(pend_pos(theta0), 0.05, fc='r', zorder=3))
+    line_3, = ax3.plot([0, x0], [0,y0], lw=2, c='k')
+    circle_3 = ax3.add_patch(plt.Circle(pend_pos(theta0), 0.05, fc='r', zorder=3))
+
+    def animate_all(i):
+        a = 0
+        TRAIL = True
+        if TRAIL:
+            trailing_sec = 20
+            trailing_frames = trailing_sec * fps
+            if i >= trailing_frames:
+                a = i + 1 - trailing_frames
+        
+        theta_curve_1.set_data(t[:i+1], theta_deg[:i+1])
+        theta_dot_curve_1.set_data(t[:i+1], theta_dot_deg[:i+1])
+
+        phase_curve_2.set_data(theta_deg[a:i+1], theta_dot_deg[a:i+1])
+        phase_dot_2.set_data([theta_deg[i]], [theta_dot_deg[i]])
+
+        x,y = pend_pos(theta[i])
+        line_3.set_data([0,x], [0,y])
+        circle_3.set_center((x,y))
+
+    ani_all = animation.FuncAnimation(
+            fig,
+            animate_all,
+            frames=len(t),
+            interval=1000/fps,
+            blit=False,      # set blit=False if your backend has issues
+            repeat=False
+        )
+    
+    plt.show()
