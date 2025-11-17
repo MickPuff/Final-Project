@@ -44,6 +44,25 @@ t = sol.t
 theta_deg = np.rad2deg(theta)
 theta_dot_deg = np.rad2deg(theta_dot)
 
+def pendulum_energy(theta, theta_dot, m=1.0, g=g, ell=ell):
+    # linear speed of the bob
+    v = ell * theta_dot
+
+    # kinetic energy: 1/2 m v^2
+    KE = 0.5 * m * v**2
+
+    # potential energy: m g h, with h = ell(1 - cos(theta))
+    PE = m * g * ell * (1 - np.cos(theta))
+
+    # total mechanical energy
+    E = KE + PE
+
+    return KE, PE, E
+
+KE, PE, E = pendulum_energy(theta, theta_dot)
+print(f"Max total energy: {np.max(E):.4f}")
+print(f"Min total energy: {np.min(E):.4f}")
+
 ANIMATE_ALL = True
 if ANIMATE_ALL:
     
