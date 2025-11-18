@@ -13,11 +13,11 @@ ell = 1
 
 # initial conditions:
 
-theta0 = np.deg2rad(170) # angle
+theta0 = np.deg2rad(90) # initial angle
 theta_dot0 = 0 # angular velocity
-mu = 0.2
-F_0 = 2
-omega = 3.1305
+mu = 0.5 #damping coefficient
+F_0 = 10 # driving force
+omega = 3.1305 * 2 # driving force frequency
 
 #defining the system of diffeq.
 #y[0] is theta, y[1] is theta_dot
@@ -27,12 +27,13 @@ def pendulum_ODE(t, y):
 
 #solving ODE
 
-time_range = 40
+time_range = 10
 fps = 60
+trailing_sec = 5
 sol = solve_ivp(
     pendulum_ODE, [0, time_range], (theta0, theta_dot0),
     t_eval=np.linspace(0, time_range, fps*time_range),
-    rtol=1e-10, atol=1e-12  # much tighter and capped step
+    rtol=1e-10, atol=1e-12  #   
 )
 
 #output:
@@ -150,7 +151,6 @@ if ANIMATE_ALL:
         a = 0
         TRAIL = True
         if TRAIL:
-            trailing_sec = 20
             trailing_frames = trailing_sec * fps
             if i >= trailing_frames:
                 a = i + 1 - trailing_frames
